@@ -1,0 +1,1 @@
+# netigma_covid
