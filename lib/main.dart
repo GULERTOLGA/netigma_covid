@@ -1,11 +1,20 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:netigma_covid/meta/query_result.dart';
 import 'package:netigma_covid/total_deaths.dart';
 
+import 'authentication/auth.dart';
+import 'authentication/client_uset.dart';
+import 'card_widget.dart';
 import 'cluster_map.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-void main() => runApp(MyApp());
+import 'meta/query.dart';
+
+void main() => runApp(AuthProvider(auth: Auth(), child: MyApp()));
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -34,72 +43,73 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String sessionid = "";
+  String sessionID = "";
+  int total =0;
+  int newCases=0 ;
+  int totalDeaths=0 ;
+  int newDeaths=0 ;
+  int actives=0 ;
+  int recovered =0;
+  int serious =0;
 
-  Future<ClientUser> singIn(String email, String password) async {
+  Future<ClientUser> login(String email, String password) async {
     ClientUser user = new ClientUser(
       userName: email,
       password: password,
       sessionid: "",
     );
 
-    final response = await http
-        .post("http://ssltest.netcad.com.tr/covid/gisapi/Authentication/Login",
-            body: user.toJsonMap())
-        .timeout(Duration(seconds: 30));
-
-    if (response.statusCode == 200) {
-      var tt = json.decode(response.body);
-      var t = tt["sessionid"];
-      var g = 1;
-      setState(() {
-        sessionid = t;
-      });
-
-      getCases(sessionid);
-    }
+    return AuthProvider.of(context)
+        .auth
+        .singIn("covidguest", "covidguest", null, null, null);
   }
 
-
-  dynamic total ="...";
-  dynamic newcases="...";
-  dynamic totaldeaths="...";
-  dynamic newdeaths="...";
-  dynamic actives="...";
-  dynamic recoveresds="...";
-
-
-
-
-  void getCases(sessiionid) async
-  {
+  void getCases(sessiionid) async {
     //http://ssltest.netcad.com.tr/covid/gisapi/query/Template?TemplateName=corona_totals&SessionID=7f9da62287d841708fe8a05d6c082a7d&enableCache=true
-    final response = await http
-        .get("http://ssltest.netcad.com.tr/covid/gisapi/query/Template?TemplateName=corona_totals&SessionID=${sessiionid}");
+    final response = await http.get(
+        "http://ssltest.netcad.com.tr/covid/gisapi/query/Template?TemplateName=corona_totals&SessionID=${sessiionid}");
     var t = response.body;
     var tt = json.decode(response.body);
-    
+
+
+    var qr = QueryResult.fromJson(tt, new Query());
+
+
+
+
     var c = 1;
     setState(() {
-      total = tt["Rows"][0]["Cells"][0]["Value"];
-      newcases = tt["Rows"][0]["Cells"][1]["Value"];
-      totaldeaths = tt["Rows"][0]["Cells"][2]["Value"];
-      newdeaths = tt["Rows"][0]["Cells"][3]["Value"];
-      actives = tt["Rows"][0]["Cells"][4]["Value"];
-      recoveresds = tt["Rows"][0]["Cells"][6]["Value"];
-
+      total =  qr.rows[0].cells.firstWhere((a)=>a.columnName == "geocases.total").value.round();
+      newCases = qr.rows[0].cells.firstWhere((a)=>a.columnName == "geocases.newcases").value.round();
+      totalDeaths =  qr.rows[0].cells.firstWhere((a)=>a.columnName == "geocases.deaths").value.round();
+      newDeaths = qr.rows[0].cells.firstWhere((a)=>a.columnName == "geocases.newdeaths").value.round();
+      actives =  qr.rows[0].cells.firstWhere((a)=>a.columnName == "geocases.active").value.round();
+      recovered =  qr.rows[0].cells.firstWhere((a)=>a.columnName == "geocases.recovered").value.round();
+      serious =  qr.rows[0].cells.firstWhere((a)=>a.columnName == "geocases.serious").value.round();
     });
 
 
+
+
   }
 
+
+  int y = 1000;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    singIn("covidguest", "covidguest");
+    new Future.delayed(Duration.zero, () {
+      login("covidguest", "covidguest").then((c) {
+        setState(() {
+          sessionID = c.sessionid;
+          getCases(sessionID);
+        });
+      });
+    });
+
   }
 
   @override
@@ -167,7 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           appBar: AppBar(
-            title: Text("NETIGMA Covid Demo"),
+            title: Text("Covid 19 Tracker"),
           ),
           body: TabBarView(
             children: [
@@ -178,7 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               new MapSample(),
-              new TotalDeaths(sessionid: sessionid),
+              new TotalDeaths(sessionid: sessionID),
               new Container(),
             ],
           ),
@@ -188,160 +198,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget buildCards() {
+
     return Column(children: <Widget>[
-      Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        color: Colors.pink,
-        elevation: 10,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 16, 0, 32),
-          child: ListTile(
-            leading: Icon(Icons.all_inclusive, size: 70),
-            title: Text('Total Cases', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold )),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(total.toString(), style: TextStyle(color: Colors.white)),
-                SizedBox(height: 5),
-                Text("17.03.2020 03:53"),
-              ],
-            ),
-          ),
-        ),
-      ),
-      Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        color: Colors.orange,
-        elevation: 10,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 16, 0, 32),
-          child: ListTile(
-            leading: Icon(Icons.new_releases, size: 70),
-            title: Text('New Cases', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold )),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(newcases.toString(), style: TextStyle(color: Colors.white)),
-                SizedBox(height: 5),
-                Text("17.03.2020 03:53"),
-              ],
-            ),
-          ),
-        ),
-      ),
-      Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        color: Colors.red,
-        elevation: 10,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 16, 0, 32),
-          child: ListTile(
-            title: Text('Total Deaths', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold )),
-            leading: Icon(Icons.cancel, size: 70),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(totaldeaths.toString(), style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold )),
-                SizedBox(height: 5),
-                Text("17.03.2020 03:53"),
-              ],
-            ),
-          ),
-        ),
-      ),
-      Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        color: Colors.blueGrey,
-        elevation: 10,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 16, 0, 32),
-          child: ListTile(
-            leading: Icon(Icons.gesture, size: 70),
-            title: Text('Recovereds', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(recoveresds.toString(), style: TextStyle(color: Colors.white)),
-                SizedBox(height: 5),
-                Text("17.03.2020 03:53"),
-              ],
-            ),
-          ),
-        ),
-      ),
-      Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        color: Colors.purple,
-        elevation: 10,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 16, 0, 32),
-          child: ListTile(
-            leading: Icon(Icons.access_time, size: 70),
-            title: Text('Active Cases', style: TextStyle(color: Colors.white, fontWeight:FontWeight.bold)),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(actives.toString(), style: TextStyle(color: Colors.white)),
-                SizedBox(height: 5),
-                Text("17.03.2020 03:53"),
-              ],
-            ),
-          ),
-        ),
-      ),
+      CardWidget(title: "Total Cases", color: Colors.pink, value: total, icon: Icons.all_inclusive),
+      CardWidget(title: "New Cases", color: Colors.orange, value: newCases, icon: Icons.new_releases),
+      CardWidget(title: "Total Deaths", color: Colors.red, value: totalDeaths, icon: Icons.remove_circle),
+      CardWidget(title: "Recovered", color: Colors.blueGrey, value: recovered, icon: Icons.healing),
+      CardWidget(title: "Active Cases", color: Colors.purple, value: actives, icon: Icons.access_time),
+      CardWidget(title: "Serious", color: Colors.brown, value: serious, icon: Icons.announcement),
+
     ]);
   }
 }
 
-class ClientUser {
-  final String userName;
-  final String password;
-  final String sessionid;
-  final String firstName;
-  final String lastName;
-  final String email;
-  final bool isNetAdmin;
-  final String uid;
 
-  ClientUser(
-      {this.uid,
-      this.firstName,
-      this.lastName,
-      this.email,
-      this.isNetAdmin,
-      this.userName,
-      this.password,
-      this.sessionid});
-
-  factory ClientUser.fromJson(Map<String, dynamic> json) {
-    return new ClientUser(
-      userName: json["userName"],
-      password: json["password"],
-      sessionid: json["sessionid"],
-      firstName: json["firstName"],
-      lastName: json["lastName"],
-      email: json["email"],
-      uid: json["uid"],
-      isNetAdmin: json["isNetAdmin"],
-    );
-  }
-
-  Map toJsonMap() {
-    Map map = {
-      'userName': userName,
-      'password': password,
-      'sessionid': sessionid
-    };
-    return map;
-  }
-}

@@ -62,6 +62,10 @@ class _TotalDeathsState extends State<TotalDeaths> {
     itemCount: items.length,
     itemBuilder: (BuildContext context, int index) {
       return ListTile(
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(50),
+           child:  Image.asset('assets/flags/cn.png', fit: BoxFit.contain,width: 40, height: 40,),
+        ),
         title: Text(items[index].a),
         trailing: Text(items[index].b),
 
