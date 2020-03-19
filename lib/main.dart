@@ -65,9 +65,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void getCases(sessiionid) async {
-    //http://ssltest.netcad.com.tr/covid/gisapi/query/Template?TemplateName=corona_totals&SessionID=7f9da62287d841708fe8a05d6c082a7d&enableCache=true
+    //https://covid19.netigma.io/covid/gisapi/query/Template?TemplateName=corona_totals&SessionID=7f9da62287d841708fe8a05d6c082a7d&enableCache=true
     final response = await http.get(
-        "http://ssltest.netcad.com.tr/covid/gisapi/query/Template?TemplateName=corona_totals&SessionID=${sessiionid}");
+        "https://covid19.netigma.io/covid/gisapi/query/Template?TemplateName=corona_totals&SessionID=${sessiionid}");
     var t = response.body;
     var tt = json.decode(response.body);
 
@@ -187,7 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: SingleChildScrollView(child: buildCards()),
                 ),
               ),
-              new MapSample(),
+              new MapSample(sessionid: sessionID,),
               new TotalDeaths(sessionid: sessionID),
               new Container(),
             ],

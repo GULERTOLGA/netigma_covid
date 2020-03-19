@@ -1,6 +1,6 @@
 
 class ApplicationSettings {
-  static String endPoint ="http://ssltest.netcad.com.tr/covid/gisapi/";
+  static String endPoint ="https://covid19.netigma.io/covid/gisapi/";
   static String sessionID = "";
   static String title;
   static String imageUrl;
