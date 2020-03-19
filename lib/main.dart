@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:netigma_covid/meta/query_result.dart';
 import 'package:netigma_covid/total_deaths.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'authentication/auth.dart';
 import 'authentication/client_uset.dart';
@@ -118,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
       darkTheme: ThemeData.dark(),
       theme: ThemeData.dark(),
       home: DefaultTabController(
-        length: 4,
+        length: 3,
         child: Scaffold(
           bottomNavigationBar: Container(
             color: ThemeData.dark().primaryColor,
@@ -135,9 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Tab(
                     icon: new Icon(Icons.list),
                   ),
-                  Tab(
-                    icon: new Icon(Icons.settings),
-                  )
+
                 ],
                 indicatorSize: TabBarIndicatorSize.label,
                 indicatorPadding: EdgeInsets.all(5.0),
@@ -154,25 +153,62 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: EdgeInsets.zero,
               children: <Widget>[
                 DrawerHeader(
-                  child: Text('NETIGMA'),
-                  decoration: BoxDecoration(),
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        height: 90,
+
+                        child: Image(
+                          width: 140,
+                            image: AssetImage('assets/images/tick.png')),
+                      ),
+                      Center(
+                          child: Text("Covid19 Outbreak",
+                              style: TextStyle(color: Colors.black45))),
+                    ],
+                  ),
+                  decoration: BoxDecoration(
+                    color:Colors.white
+                  ),
                 ),
                 ListTile(
-                  title: Text('netimga.io'),
+                  title: Text('covid19.netigma.io'),
+                  onTap: () {
+                    _launchURL("https://covid19.netigma.io");
+                    // Update the state of the app.
+                    // ...
+                  },
+                ),
+                Divider(),
+                ListTile(
+                  title: Text('netigma.io'),
                   onTap: () {
                     // Update the state of the app.
                     // ...
+                    _launchURL("https://netigma.io");
                   },
                 ),
                 Divider(),
                 ListTile(
                   title: Text('netcad.com.tr'),
                   onTap: () {
+                    _launchURL("https://netcad.com.tr");
+
+
                     // Update the state of the app.
                     // ...
                   },
                 ),
                 Divider(),
+
+                ListTile(
+                  title: Center(child: Text('Data by WHO & Wikipedia', style: TextStyle(color: Colors.grey, fontSize: 12),)),
+                  onTap: () {
+                    // Update the state of the app.
+                    // ...
+                  },
+                ),
               ],
             ),
           ),
@@ -189,12 +225,21 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               new MapSample(sessionid: sessionID,),
               new TotalDeaths(sessionid: sessionID),
-              new Container(),
+
             ],
           ),
         ),
       ),
     );
+  }
+
+
+  _launchURL(url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   Widget buildCards() {

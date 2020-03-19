@@ -86,7 +86,7 @@ class _TotalDeathsState extends State<TotalDeaths> with AutomaticKeepAliveClient
                 icon: new Text("All Deaths"),
               ),
               Tab(
-                icon: new Text("Recovereds"),
+                icon: new Text("Recovered"),
               )
             ],
             indicatorSize: TabBarIndicatorSize.label,
