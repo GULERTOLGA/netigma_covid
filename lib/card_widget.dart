@@ -7,8 +7,10 @@ class CardWidget extends StatefulWidget {
   final IconData icon;
   final Color color;
   final int value;
+  final DateTime date;
 
-  const CardWidget({Key key, this.title, this.icon, this.color, this.value}) : super(key: key);
+
+  const CardWidget({Key key, this.title, this.icon, this.color, this.value, this.date}) : super(key: key);
 
 
   
@@ -41,7 +43,7 @@ void initState() {
   @override
   Widget build(BuildContext context) {
 
-    String formattedDate = DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now().subtract(Duration(minutes: 10)));
+    String formattedDate = widget.date != null ? DateFormat('yyyy-MM-dd – kk:mm').format(widget.date) : "loading";
     return   Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),

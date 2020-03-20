@@ -22,7 +22,7 @@ class MapSample extends StatefulWidget {
   State<MapSample> createState() => MapSampleState();
 }
 
-class MapSampleState extends State<MapSample> with     AutomaticKeepAliveClientMixin<MapSample>{
+class MapSampleState extends State<MapSample> with  AutomaticKeepAliveClientMixin<MapSample>{
   ClusterManager _managerex;
 
   Completer<GoogleMapController> _controller = Completer();
@@ -43,6 +43,10 @@ class MapSampleState extends State<MapSample> with     AutomaticKeepAliveClientM
   get http => null;
   @override
   void initState() {
+
+    print("map init state");
+    print(this.mounted);
+
     super.initState();
 
     rootBundle.loadString('assets/style.txt').then((string) {
