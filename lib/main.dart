@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'BusWatch',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.orange,
@@ -188,6 +189,7 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       darkTheme: ThemeData.dark(),
       theme: ThemeData.dark(),
       home: DefaultTabController(
@@ -299,7 +301,7 @@ class _MyHomePageState extends State<MyHomePage>
           ListTile(
             title: Text('netcad.com.tr'),
             onTap: () {
-              _launchURL("https://netcad.com.tr");
+              _launchURL("http://netcad.com.tr");
 
               // Update the state of the app.
               // ...
@@ -337,7 +339,7 @@ class _MyHomePageState extends State<MyHomePage>
           title: "Total Cases",
           color: Colors.pink,
           value: total,
-          icon: Icons.all_inclusive),
+          icon: Icons.filter_list),
       CardWidget(
           date: fileDate,
           title: "New Cases",

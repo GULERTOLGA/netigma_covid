@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:netigma_covid/card_widget.dart';
 import 'package:netigma_covid/meta/country_model.dart';
 import 'package:netigma_covid/utils.dart';
@@ -130,47 +131,12 @@ class _FavouritesWidgetState extends State<FavouritesWidget> {
       child: ListView.builder(itemBuilder: (context, index){
         var c = countries[index];
         var image = flags[c.name];
+        return  c.toWidget(context,(c){
+          removeCountry(c.name).then((a){
+            getCases(widget.sessionid);
+          });
+        });
 
-        return Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          color: Colors.black12,
-          elevation: 10,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-            child: ListTile(
-                trailing:IconButton(
-                  onPressed: () {
-                    removeCountry(c.name).then((a){
-                      getCases(widget.sessionid);
-                    });
-                  },
-                  icon: Icon(Icons.remove),
-                ),
-              leading: ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: image !=null ? image :  CircleAvatar(child: Text(c.name[0]),),
-              ),
-              title: Text(c.name,
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-              subtitle: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text("Total Cases : ${c.total}"),
-                    Text("New Cases  : ${c.newCases}"),
-                    Text("Total Deaths : ${c.totalDeaths}"),
-                    Text("Recovered : ${c.recovered}"),
-                    SizedBox(height: 5),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
       }, itemCount:  countries.length,),
     );
   }

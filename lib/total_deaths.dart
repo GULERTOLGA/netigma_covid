@@ -28,6 +28,7 @@ class _TotalDeathsState extends State<TotalDeaths> with AutomaticKeepAliveClient
   List<Item> allCasesItems = [];
   List<Item> newCasesItems = [];
   List<Item> allDeathsItems = [];
+  List<Item> newDeathsItems = [];
   List<Item> recoveredItems = [];
   bool loading = true;
 
@@ -46,17 +47,22 @@ class _TotalDeathsState extends State<TotalDeaths> with AutomaticKeepAliveClient
         var newCases = g["Cells"][6]["Value"];
         var allDeaths = g["Cells"][7]["Value"];
         var recovereds = g["Cells"][11]["Value"];
+        var newDeaths = g["Cells"][8]["Value"];
 
         var t = 11;
         allCasesItems.add(new Item(country, allCases.round()));
         newCasesItems.add(new Item(country, newCases.round()));
         allDeathsItems.add(new Item(country, allDeaths.round()));
         recoveredItems.add(new Item(country, recovereds.round()));
+        newDeathsItems.add(new Item(country, newDeaths.round()));
       }
 
     newCasesItems.sort((a, b) => b.totalCases.compareTo(a.totalCases));
     allDeathsItems.sort((a, b) => b.totalCases.compareTo(a.totalCases));
     recoveredItems.sort((a, b) => b.totalCases.compareTo(a.totalCases));
+    recoveredItems.sort((a, b) => b.totalCases.compareTo(a.totalCases));
+
+    newDeathsItems = newDeathsItems.where((a)=>a.totalCases > 0).toList();
 
     setState(() {
       loading = false;
@@ -71,10 +77,10 @@ class _TotalDeathsState extends State<TotalDeaths> with AutomaticKeepAliveClient
   Widget build(BuildContext context) {
 
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
-          title:     new TabBar(
+          title: new TabBar(
             isScrollable: true,
             tabs: [
               Tab(
@@ -82,6 +88,9 @@ class _TotalDeathsState extends State<TotalDeaths> with AutomaticKeepAliveClient
               ),
               Tab(
                 icon: new Text("New Cases"),
+              ),
+              Tab(
+                icon: new Text("New Deaths"),
               ),
               Tab(
                 icon: new Text("All Deaths"),
@@ -98,10 +107,11 @@ class _TotalDeathsState extends State<TotalDeaths> with AutomaticKeepAliveClient
 
         body: TabBarView(
             children: [
-              loading ? Container():getListView(allCasesItems),
-              loading ? Container():getListView(newCasesItems),
-              loading ? Container():getListView(allDeathsItems),
-              loading ? Container():getListView(recoveredItems),
+              loading ? Center( child:CircularProgressIndicator()):getListView(allCasesItems),
+              loading ? Center( child:CircularProgressIndicator()):getListView(newCasesItems),
+              loading ? Center( child:CircularProgressIndicator()):getListView(newDeathsItems),
+              loading ? Center( child:CircularProgressIndicator()):getListView(allDeathsItems),
+              loading ? Center( child:CircularProgressIndicator()):getListView(recoveredItems),
             ])
       ),
     ) ;
